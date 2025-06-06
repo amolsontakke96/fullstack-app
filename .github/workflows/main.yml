@@ -39,26 +39,30 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/frontend
+      
+      - name: Extract short commit SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: frontend/
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: amolsontakke96/frontend:${{ steps.vars.outputs.sha_short }}
           labels: ${{ steps.meta.outputs.labels }}
-      
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: backend/
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: amolsontakke96/backend:${{ steps.vars.outputs.sha_short }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Update Kubernetes manifest with new image tag
         run: |
-          sed -i "s|^\([[:space:]]*tag:\).*|\1 \"${{ steps.meta.outputs.version }}\"|" k8s/node/charts/frontend/values.yaml
+          sed -i "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.vars.outputs.sha_short }}|" k8s/node/charts/frontend/values.yaml
       - name: Commit and push changes
         run: |
           git config user.name "${{ secrets.GIT_COMMITTER_NAME }}"
