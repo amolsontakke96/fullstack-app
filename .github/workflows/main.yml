@@ -68,7 +68,7 @@ jobs:
           git config user.name "${{ secrets.GIT_COMMITTER_NAME }}"
           git config user.email "${{ secrets.GIT_COMMITTER_EMAIL }}"
           git add k8s/node/charts/frontend/values.yaml
-          git commit -m "Update image tag to ${{ steps.meta.outputs.version }}" | True
+          git commit -m "Update image tag to ${{ steps.meta.outputs.version }}" || true
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
