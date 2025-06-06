@@ -54,8 +54,7 @@ jobs:
 
       - name: Update Kubernetes manifest with new image tag
         run: |
-          sed -i "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.meta.outputs.version }}|" k8s/node/charts/frontend/values.yaml
-
+          sed -i "s|^\([[:space:]]*tag:\).*|\1 \"${{ steps.meta.outputs.version }}\"|" k8s/node/charts/frontend/values.yaml
       - name: Commit and push changes
         run: |
           git config user.name "${{ secrets.GIT_COMMITTER_NAME }}"
